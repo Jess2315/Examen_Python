@@ -1,3 +1,4 @@
+from swagger_server.models import RequestInstitutionAdd
 from swagger_server.models.response_institution import ResponseInstitution
 from swagger_server.models.response_institution_data import ResponseInstitutionData
 
@@ -33,3 +34,18 @@ class InstitutionUseCase:
         )
 
         return response
+
+    def add_institution(self, institution_data):
+        """
+            Crea una institución
+        :return:
+        """
+
+        institution = RequestInstitutionAdd(
+            name=institution_data.name,
+            description=institution_data.description,
+            address=institution_data.address,
+            created_user=institution_data.created_user
+        )
+        self.institution_repository.add_institution(institution)
+        return ResponseInstitution(code=0, message="proceso satisfactorio")

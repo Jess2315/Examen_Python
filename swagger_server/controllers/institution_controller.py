@@ -1,5 +1,6 @@
 import connexion
 import six
+import logging
 
 from swagger_server.models.inline_response200 import InlineResponse200  # noqa: E501
 from swagger_server.models.request_institution_add import RequestInstitutionAdd  # noqa: E501
@@ -31,8 +32,20 @@ class IntitutionView(MethodView):
         :rtype: InlineResponse200
         """
         if connexion.request.is_json:
-            body = RequestInstitutionAdd.from_dict(connexion.request.get_json())  # noqa: E501
-        return 'do some magic!'
+            body = RequestInstitutionAdd.from_dict(
+                connexion.request.get_json())  # noqa: E501  # Convertimos el objeto JSON a un objeto de tipo Institution
+
+        try:
+            response = self.institution_usecase.add_institution(body)
+            logging.info(f"Se agregó una nueva institución con éxito: {response}")
+        except Exception as ex:
+            message = str(ex)
+            logging.error(f"No se pudo agregar la institución: {message}")
+            response = Response400(
+                code=-1,
+                message=message
+            )
+        return response
 
     def delete_institution(self, institution_id):  # noqa: E501
         """Elimina una institución
