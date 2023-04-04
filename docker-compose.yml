@@ -1,0 +1,37 @@
+version: "3"
+services:
+
+  #backend
+  backend-service:
+
+    build: .
+    container_name: ${BACKEND_SERVICE_NAME}
+    env_file:
+      - .env
+    environment:
+      - SQL_ALCHEMY_HOST=${DATABASE_SERVICE_NAME}
+      - SQL_ALCHEMY_DATABASE=${DATABASE_NAME_DB}
+    ports:
+      - ${BACKEND_APP_PORT}:8080
+    networks:
+      - application
+    depends_on:
+      - database-service
+
+  #database
+  database-service:
+    image: mysql:5.7
+    container_name: ${DATABASE_SERVICE_NAME}
+    restart: always
+    volumes:
+      - ./scripts/script.sql:/docker-entrypoint-initdb.d/script.sql
+    expose:
+      - 3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${SQL_ALCHEMY_PASSWORD}
+      - MYSQL_DATABASE=${DATABASE_NAME_DB}
+    networks:
+      - application
+
+networks:
+  application:
